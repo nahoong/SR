@@ -1,0 +1,183 @@
+
+
+
+Sub showPic()
+'
+' showPic 매크로
+'
+' 바로 가기 키: Ctrl+q
+'
+
+If Not ThisWorkbook.Name = "cho.xlsm" Then GoTo endd
+
+'위치 판단
+If 위치 = -1 Then GoTo endd
+
+'신규 수정 판단
+
+If 신수판 = "오류" Then GoTo endd
+
+If 신수판 = "신규" Then 신규
+If 신수판 = "보기" Then 보기
+If 신수판 = "수정" Then 수정
+
+Exit Sub
+endd:
+MsgBox "큭"
+End Sub
+Sub 신규()
+Debug.Print "신규"
+편집창.Show
+End Sub
+Sub 보기()
+Debug.Print "보기"
+
+Dim str As String
+Dim 파일명 As String
+Dim 텍스트 As String
+
+
+    For Each shp In ActiveSheet.Shapes
+        shp.Delete
+    Next shp
+    
+    
+파일명 = ThisWorkbook.path & "\voca\DAY\" & "J" & ActiveCell.Column & "J" & ActiveCell.Row & ".txt"
+
+Open 파일명 For Input As #FreeFile
+Do Until EOF(1)
+    Line Input #1, str
+    텍스트 = 텍스트 & str & vbCrLf
+Loop
+Close #1
+
+내용 = Split(텍스트, "$#$")
+'''''''''''''''''''제목
+Range("c2").Value = Replace(내용(0), vbCrLf, "")
+
+'''''''''''''''''''내용
+메모 (내용(1))
+Range("p14").Value = Replace(내용(1), vbCrLf, "")
+
+'''''''''''''''''''이미지
+내용(2) = Replace(내용(2), vbCrLf, "")
+Range("p15").Value = 내용(2)
+배열 = Split(Trim(내용(2)), ";")
+사진입력 (배열)
+
+
+
+End Sub
+Sub 수정()
+Debug.Print "수정"
+ActiveCell.Offset(0, -1).Select
+보기
+
+편집창.TextBox1.Text = Range("c2").Value
+편집창.TextBox2.Text = Range("b14").Comment.Text
+편집창.TextBox2.Font.Size = 9
+편집창.Label4.Caption = Range("p15").Value
+편집창.Show
+
+보기
+ActiveCell.Offset(0, 1).Select
+
+End Sub
+Function 메모(내용 As String)
+
+With Range("b14")
+.AddComment
+.Comment.Shape.Width = .Width * 14 - 10
+.Comment.Shape.Height = .Height * 6 - 5
+.Comment.Shape.Top = .Top + 5
+.Comment.Shape.Left = .Left + 10
+.Comment.Text 내용
+.Comment.Visible = True
+End With
+
+
+End Function
+
+Function 사진입력(배열 As Variant)
+    
+    Dim shp As Shape
+    Dim varx As Variant
+    Dim flag As Integer
+    
+    Dim r, c As Integer
+    r = ActiveCell.Row
+    c = ActiveCell.Column
+    
+    
+
+    
+    flag = 0
+    
+    dirpath = ThisWorkbook.path & "\voca\DAY_image\"
+    
+    For Each varx In 배열
+    
+        fname = Dir(dirpath & CStr(varx) & ".*")
+        If Len(fname) <> 0 And flag = 0 Then
+            fname = dirpath & fname
+            Set target = Range("b5:b13")
+            ActiveSheet.Pictures.Insert(fname).Select
+                With ActiveSheet.Shapes(Selection.Name)
+                    .LockAspectRatio = True
+                    .Top = target.Top
+                    .Left = target.Left
+                    .Height = target.Height
+                    .Placement = xlMoveAndSize
+                End With
+            flag = 1
+            
+        ElseIf Len(fname) <> 0 And flag = 1 Then
+            fname = dirpath & fname
+            Set rngshp = ActiveSheet.Shapes(Selection.Name).BottomRightCell
+            Set target = Range(Cells(5, rngshp.Column + 1), Cells(13, rngshp.Column + 1))
+            ActiveSheet.Pictures.Insert(fname).Select
+                With ActiveSheet.Shapes(Selection.Name)
+                    .LockAspectRatio = True
+                    .Top = target.Top
+                    .Left = target.Left
+                    .Height = target.Height
+                    .Placement = xlMoveAndSize
+                End With
+        End If
+        
+        
+    Next varx
+
+    Cells(r, c).Activate
+    
+End Function
+Function 위치() As Integer
+
+Dim c, r As Integer
+co = ActiveCell.Column
+ro = ActiveCell.Row
+
+    If co > 18 Or ro < 20 Then
+    위치 = -1
+    Else
+    위치 = 1
+    End If
+    
+End Function
+
+Function 신수판() As String
+
+If ActiveCell.Interior.Color = 9737946 Then
+신수판 = "신규"
+ElseIf ActiveCell.Interior.Color = 14470546 Then
+신수판 = "보기"
+ElseIf ActiveCell.Interior.Color = 14281213 Then
+신수판 = "수정"
+Else
+ActiveCell.Interior.Color = 9737946
+신수판 = "오류"
+End If
+
+End Function
+
+

@@ -1,0 +1,68 @@
+
+Private Sub CommandButton1_Click()
+
+Dim str As String
+Dim 경로 As String
+Dim mkname As String
+
+
+mkname = "J" & ActiveCell.Column & "J" & ActiveCell.Row
+
+str = TextBox1.Text & vbCrLf & "$#$" & TextBox2.Text & vbCrLf & "$#$" & Label4.Caption
+
+경로 = ThisWorkbook.path & "\voca\DAY\" & mkname & ".txt"
+
+Open 경로 For Output As #1
+Print #1, str
+Close #1
+
+ActiveCell.Interior.Color = 14470546
+
+With ActiveCell.Offset(0, 1)
+.Value = TextBox1.Text
+.Interior.Color = 14281213
+End With
+
+
+Unload 편집창
+
+
+End Sub
+
+
+
+
+
+
+Private Sub UserForm_Click()
+
+Debug.Print "mode"
+
+Image1.Picture = Module2.PastePicture
+Image1.PictureSizeMode = fmPictureSizeModeStretch
+Me.Repaint
+
+End Sub
+
+Private Sub image1_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
+
+Dim num As Integer
+
+num = Len(Label4.Caption) - Len(Replace(Label4.Caption, ";", ""))
+
+Debug.Print num
+
+Call savepic(num)
+
+
+CommandButton1.SetFocus
+
+
+End Sub
+
+
+
+
+Private Sub UserForm_Initialize()
+Label4.Caption = ""
+End Sub
